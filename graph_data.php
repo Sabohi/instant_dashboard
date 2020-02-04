@@ -1,5 +1,4 @@
 <?php
-
 $graph = isset($_POST["graph"])?trim($_POST["graph"]):'';
 $range = isset($_POST["range"])?trim($_POST["range"]):'';
 
@@ -36,7 +35,18 @@ function ticket_status_count(){
       // die('Could not get data: ' . mysqli_error());
    }
    
+   $totalArr=array();
+
+   $excludeArr=array("Total_Tickets","CLOSED","RESOLVED");
+
    while ($row = $DB->FETCH_ARRAY ($tName2, MYSQLI_ASSOC)) {
+      $row_json = json_decode($row['status'],true);
+     
+      foreach($row_json as $key=>$val){
+         if(in_array($key,$excludeArr)){
+            $totalArr[$key]=$val;
+         }
+      }
       $ticket_status_count =  $row['status'];
    }
 
@@ -53,8 +63,9 @@ function ticket_status_count(){
    }
    $data_key = json_encode($data_key);
    $data_val = json_encode($data_val);
+   $totalArr = json_encode($totalArr);
 
-   $ts_array = array("ticket_status_graph" => array("data_key"=>$data_key,"data_val"=>$data_val));
+   $ts_array = array("ticket_status_graph" => array("data_key"=>$data_key,"data_val"=>$data_val,"totalArr"=>$totalArr));
 
    return base64_encode(json_encode($ts_array));
 }
@@ -154,7 +165,73 @@ function channel_wise_traffic(){
 
 }
 
+function department_closing_percent(){
+   GLOBAL $DB, $DB_H, $redis, $table_suffix;
 
+   $tName4 = 'department_closing_percent_'.$table_suffix;
+
+   $f4 = array ('dept_percent');
+   $w4 = '';
+   $tName4 = $DB->SELECT ($tName4 , $f4, $_BLANK_ARRAY, $w4 , $DB_H);
+
+   if(! $tName4 ) {
+      // die('Could not get data: ' . mysqli_error());
+   }
+
+   while ($row = $DB->FETCH_ARRAY ($tName4, MYSQLI_ASSOC)) {
+      $department_closing_percent =  $row['dept_percent'];
+   }
+
+   $department_closing_percent = json_decode($department_closing_percent,true);
+
+   $data_close_key  = array();
+   $d=0;
+
+   foreach($department_closing_percent as $key=>$val){
+      $data_close_key[$d]=$key;
+      $data_close_val[$d]=intval($val);
+      $d++;
+   }
+   $data_close_key = json_encode($data_close_key);
+
+   $dwcp_array = array("department_closing_percent_graph" => array("data_close_key"=>$data_close_key));
+
+   return base64_encode(json_encode($dwcp_array));
+}
+
+function department_closing_percent_below_ninty(){
+   GLOBAL $DB, $DB_H, $redis, $table_suffix;
+
+   $tName5 = 'process_ticket_count_'.$table_suffix;
+
+   $f5 = array ('dept_below_percent');
+   $w5 = '';
+   $tName5 = $DB->SELECT ($tName5 , $f5, $_BLANK_ARRAY, $w5 , $DB_H);
+
+   if(! $tName5 ) {
+      // die('Could not get data: ' . mysqli_error());
+   }
+
+   while ($row = $DB->FETCH_ARRAY ($tName5, MYSQLI_ASSOC)) {
+      $below_percent_count =  $row['dept_below_percent'];
+   }
+
+   $below_percent_count = json_decode($below_percent_count,true);
+
+   $data_process_key  = array();
+   $f=0;
+   foreach($below_percent_count as $key=>$val){
+      $data_process_key[$f]=$key;
+      $data_process_val[$f]=intval($val);
+      $f++;
+   }
+   $data_process_key = json_encode($data_process_key);
+   $data_process_val = json_encode($data_process_val);
+
+   $dwcpbn_array = array("department_closing_percent_below_ninty_graph" => array("data_process_key"=>$data_process_key,"data_process_val"=>$data_process_val));
+
+   return base64_encode(json_encode($dwcpbn_array));
+}
 
 if(!empty($graph) && !empty($range)){
     switch ($graph) {
@@ -173,11 +250,23 @@ if(!empty($graph) && !empty($range)){
             $final_array = array("department_ticket_status_string"=>$department_ticket_status_string);
             $final_string = json_encode($final_array);
          break;
-        case 'all':
+         case 'department_closing_percent':
+            $department_closing_percent_string = department_closing_percent();
+            $final_array = array("department_closing_percent_string"=>$department_closing_percent_string);
+            $final_string = json_encode($final_array);
+         break;
+         case 'department_closing_percent':
+            $department_closing_percent_below_ninty_string = department_closing_percent_below_ninty();
+            $final_array = array("department_closing_percent_below_ninty_string"=>$department_closing_percent_below_ninty_string);
+            $final_string = json_encode($final_array);
+         break;
+         case 'all':
             $ticket_status_string = ticket_status_count();
             $channel_wise_traffic_string = channel_wise_traffic();
             $department_ticket_status_string = department_ticket_status_count();
-            $final_array = array("ticket_status_string"=>$ticket_status_string,"channel_wise_traffic_string"=>$channel_wise_traffic_string,"department_ticket_status_string"=>$department_ticket_status_string);
+            $department_closing_percent_string = department_closing_percent();
+            $department_closing_percent_below_ninty_string = department_closing_percent_below_ninty();
+            $final_array = array("ticket_status_string"=>$ticket_status_string,"channel_wise_traffic_string"=>$channel_wise_traffic_string,"department_ticket_status_string"=>$department_ticket_status_string,"department_closing_percent_string"=>$department_closing_percent_string,"department_closing_percent_below_ninty_string"=>$department_closing_percent_below_ninty_string);
             $final_string = json_encode($final_array);
         break;
         default:
@@ -186,172 +275,4 @@ if(!empty($graph) && !empty($range)){
     
    print base64_encode($final_string);
 }
-
-//    $data = array();
-//    $traffic_analysis = array();
-//    $a=0;
-
-//    $tName1 = 'channel';
-
-//    $f1 = array ('traffic');
-//    $w1 = '';
-//    $tName1 = $DB->SELECT ($tName1 , $f1, $_BLANK_ARRAY, $w1 , $DB_H);
-
-//    if(! $tName1 ) {
-//       die('Could not get data: ' . mysqli_error());
-//    }
-   
-//    while ($row = $DB->FETCH_ARRAY ($tName1, MYSQLI_ASSOC)) {
-//       $traffic_analysis =  $row['traffic'];
-//    }
-
-// $traffic_analysis = json_decode($traffic_analysis,true);
-
-// foreach($traffic_analysis as $key=>$val){
-//       $data[$a]["name"]=$key;
-//       $data[$a]["y"]=intval($val);
-//       $a++;
-// }
-// $data = json_encode($data);
-//=========================================================================================================================
-
-//    $ticket_status_count = array();
-
-//    $tName2 = 'ticket_status_count_24';
-
-//    $f2 = array ('ticket_status');
-//    $w2 = '';
-//    $tName2 = $DB->SELECT ($tName2 , $f2, $_BLANK_ARRAY, $w2 , $DB_H);
-
-//    if(! $tName2 ) {
-//       die('Could not get data: ' . mysqli_error());
-//    }
-   
-//    while ($row = $DB->FETCH_ARRAY ($tName2, MYSQLI_ASSOC)) {
-//       $ticket_status_count =  $row['ticket_status'];
-//    }
-
-
-// $data_key  = array();
-// $b=0;
-// $ticket_status_count = json_decode($ticket_status_count,true);
-
-// $data_key  = array();
-// $b=0;
-// foreach($ticket_status_count as $key=>$val){
-//    $data_key[$b]=$key;
-//    $data_val[$b]=intval($val);
-//    $b++; 
-// }
-// $data_key = json_encode($data_key);
-// $data_val = json_encode($data_val);
-
-//=========================================================================================================================
-// $ticket_status_count_2015 = array();
-
-// $tName3 = 'ticket_status_count_2015';
-
-// $f3 = array ('status');
-// $w3 = '';
-// $tName3 = $DB->SELECT ($tName3 , $f3, $_BLANK_ARRAY, $w3 , $DB_H);
-
-// if(!$tName3){
-//    die('Could not get data: ' . mysqli_error());
-// }
-
-// while ($row = $DB->FETCH_ARRAY ($tName3, MYSQLI_ASSOC)) {
-//    $ticket_status_count_2015 =  $row['status'];
-// }  
-
-// $data_key_2015  = array();
-// $b=0;
-// $totalArr=array();
-// $excludeArr=array("Total_Tickets","CLOSED","RESOLVED");
-
-// $ticket_status_count_2015 = json_decode($ticket_status_count_2015,true);
-// foreach($ticket_status_count_2015 as $key=>$val){
-// 	if(in_array($key,$excludeArr)){
-// 	   $totalArr[$key]=$val;
-// 	}
-// 	else
-// 	{
-//       $data_key_2015[$b]=$key;
-//       $data_val_2015[$b]=intval($val);
-//       $b++;
-// 	}
-// }
-// $data_key_2015 = json_encode($data_key_2015);
-// $data_val_2015 = json_encode($data_val_2015);
-//=========================================================================================================================
-
-$tName4 = 'department_closing_percent';
-
-$f4 = array ('dept_percent');
-$w4 = '';
-$tName4 = $DB->SELECT ($tName4 , $f4, $_BLANK_ARRAY, $w4 , $DB_H);
-
-if(! $tName4 ) {
-   die('Could not get data: ' . mysqli_error());
-}
-
-while ($row = $DB->FETCH_ARRAY ($tName4, MYSQLI_ASSOC)) {
-   $department_closing_percent =  $row['dept_percent'];
-}
-
-$department_closing_percent = json_decode($department_closing_percent,true);
-
-$data_close_key  = array();
-$d=0;
-
-foreach($department_closing_percent as $key=>$val){
-   $data_close_key[$d]=$key;
-   $data_close_val[$d]=intval($val);
-   $d++;
-}
-$data_close_key = json_encode($data_close_key);
-$data_close_val = json_encode($data_close_val);
-
-$department_closing_percent_2015 = $redis->getAllHash('department_closing_percent_2015');
-
-$data_close_key_2015  = array();
-$d=0;
-	
-foreach($department_closing_percent_2015 as $key=>$val){
-   $data_close_key_2015[$d]=$key;
-   $data_close_val_2015[$d]=intval($val);
-   $d++;
-}
-$data_close_key_2015 = json_encode($data_close_key_2015);
-$data_close_val_2015 = json_encode($data_close_val_2015);
-
-//=========================================================================================================================
-
-$tName5 = 'process_ticket_count';
-
-$f5 = array ('dept_below_percent');
-$w5 = '';
-$tName5 = $DB->SELECT ($tName5 , $f5, $_BLANK_ARRAY, $w5 , $DB_H);
-
-if(! $tName5 ) {
-   die('Could not get data: ' . mysqli_error());
-}
-
-while ($row = $DB->FETCH_ARRAY ($tName5, MYSQLI_ASSOC)) {
-   $below_percent_count =  $row['dept_below_percent'];
-}
-
-$below_percent_count = json_decode($below_percent_count,true);
-
-$data_process_key  = array();
-$f=0;
-foreach($below_percent_count as $key=>$val){
-   $data_process_key[$f]=$key;
-   $data_process_val[$f]=intval($val);
-   $f++;
-}
-$data_process_key = json_encode($data_process_key);
-$data_process_val = json_encode($data_process_val);
-
-//=========================================================================================================================
-
 ?>
