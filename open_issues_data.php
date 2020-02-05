@@ -85,37 +85,37 @@ else{
 		                print(json_encode($nar));
 			}
 		break;
-                case "3":
-                        $tName = $tableName;
-                        $f = array ('json_data');
-                        $w = " and key_name='company_wise'";
-                        $tName = $DB->SELECT ($tName , $f, $_BLANK_ARRAY, $w , $DB_H);
+                // case "3":
+                //         $tName = $tableName;
+                //         $f = array ('json_data');
+                //         $w = " and key_name='company_wise'";
+                //         $tName = $DB->SELECT ($tName , $f, $_BLANK_ARRAY, $w , $DB_H);
 
-                        $row_count = $DB->GET_ROWS_COUNT($tName);
+                //         $row_count = $DB->GET_ROWS_COUNT($tName);
 
-                        if ($row_count > 0) {
-                                while ($row = $DB->FETCH_ARRAY ($tName, MYSQLI_ASSOC)) {    
-                                        $jsonData=json_decode($row["json_data"],true);  
-                                }
+                //         if ($row_count > 0) {
+                //                 while ($row = $DB->FETCH_ARRAY ($tName, MYSQLI_ASSOC)) {    
+                //                         $jsonData=json_decode($row["json_data"],true);  
+                //                 }
 
-                                $final_data = $jsonData[$asr[0]][$asr[1]][$asr[2]];
+                //                 $final_data = $jsonData[$asr[0]][$asr[1]][$asr[2]];
                                 
-                                arsort($final_data);
-                                $narr=array();
-                                $a=0;
-                                foreach($final_data as $key=>$val){
-                                        $narr[$a]["name"]=str_replace(" ","_",$key);
-                                        $narr[$a]["y"]=intval($val);
-                                        if(intval($val)>0){
-                                                $narr[$a]["drilldown"]=$asr[0].":".$asr[1].":".$asr[2].":".str_replace(" ","_",$key);
-                                        }
-                                        $a++;
-                                }
-                                $nar=array("name"=>$asr[2],"data"=>$narr);
-                                print(json_encode($nar));
-                        }
-                break;
-                case "4":
+                //                 arsort($final_data);
+                //                 $narr=array();
+                //                 $a=0;
+                //                 foreach($final_data as $key=>$val){
+                //                         $narr[$a]["name"]=str_replace(" ","_",$key);
+                //                         $narr[$a]["y"]=intval($val);
+                //                         if(intval($val)>0){
+                //                                 $narr[$a]["drilldown"]=$asr[0].":".$asr[1].":".$asr[2].":".str_replace(" ","_",$key);
+                //                         }
+                //                         $a++;
+                //                 }
+                //                 $nar=array("name"=>$asr[2],"data"=>$narr);
+                //                 print(json_encode($nar));
+                //         }
+                // break;
+                case "3":
                         $tName = $tableName;
                         $f = array ('json_data');
                         $w = " and key_name='ticket_type_wise'";
@@ -144,7 +144,7 @@ else{
                                 print(json_encode($nar));
                         }
                 break;
-                case "5":
+                case "4":
                         $tName = $tableName;
                         $f = array ('json_data');
                         $w = " and key_name='disposition_wise'";
@@ -174,7 +174,7 @@ else{
                                 print(json_encode($nar));
                         }
                 break;
-                case "6":
+                case "5":
                         $tName = $tableName;
                         $f = array ('json_data');
                         $w = " and key_name='sub_disposition_wise'";
