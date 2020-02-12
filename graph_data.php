@@ -1,6 +1,7 @@
 <?php
 $graph = isset($_POST["graph"])?trim($_POST["graph"]):'';
 $range = isset($_POST["range"])?trim($_POST["range"]):'';
+$client_id = isset($_POST["client_id"])?trim($_POST["client_id"]):'';
 
 require_once ("/var/www/html/CZCRM/modules/SESSION/session_config.php");
 require_once ("/var/www/html/CZCRM/modules/SESSION/session.php");
@@ -10,7 +11,7 @@ require_once ("/var/www/html/CZCRM/configs/dashboard_config.php");
 require_once (_MODULE_PATH . "DATABASE/database_config.php");
 require_once (_MODULE_PATH . "DATABASE/DatabaseManageri.php");
 
-$DB = new DATABASE_MANAGER (DB_HOST, DB_USERNAME, DB_PASSWORD,DB_NAME);
+$DB = new DATABASE_MANAGER (DB_HOST, DB_USERNAME, DB_PASSWORD,DASH_DB_NAME);
 $DB_H = $DB->CONNECT ();
 
 require_once("/var/www/html/CZCRM/classes/redisHandler.class.php");
@@ -18,18 +19,20 @@ $redis = new redisHandler();
 
 //derive table suffix
 
-$table_suffix = isset($table_suffix[$range])?$table_suffix[$range]:'today';
+$key_name = isset($table_key[$range])?$table_key[$range]:'today';
+
+$global_condition = ' and key_name="'.$key_name.'"';
 
 function ticket_status_count(){
-   GLOBAL $DB, $DB_H, $redis, $table_suffix;
+   GLOBAL $DB, $DB_H, $redis, $client_id, $global_condition;
 
    $ticket_status_count = array();
 
-   $tName2 = 'ticket_status_count_'.$table_suffix;
+   $tName2 = 'ticket_status_count_'.$client_id;
 
    $f2 = array ('status');
    $w2 = '';
-   $tName2 = $DB->SELECT ($tName2 , $f2, $_BLANK_ARRAY, $w2 , $DB_H);
+   $tName2 = $DB->SELECT ($tName2 , $f2, $_BLANK_ARRAY, $w2.$global_condition , $DB_H);
 
    if(!$tName2) {
       // die('Could not get data: ' . mysqli_error());
@@ -71,14 +74,14 @@ function ticket_status_count(){
 }
 
 function department_ticket_status_count(){
-   GLOBAL $DB, $DB_H, $redis, $table_suffix;
+   GLOBAL $DB, $DB_H, $redis, $client_id, $global_condition;
 
    // $tName = 'department_ticket_count_2015';
-   $tName = 'department_ticket_count_'.$table_suffix;
+   $tName = 'department_ticket_count_'.$client_id;
 
    $f = array ('key_name','json_data');
    $w = '';
-   $tName = $DB->SELECT ($tName , $f, $_BLANK_ARRAY, $w , $DB_H);
+   $tName = $DB->SELECT ($tName , $f, $_BLANK_ARRAY, $w.$global_condition , $DB_H);
    $row_count = $DB->GET_ROWS_COUNT($tName);
 
    // if ($row_count > 0) {
@@ -131,16 +134,16 @@ function department_ticket_status_count(){
 
 function channel_wise_traffic(){
    
-   GLOBAL $DB, $DB_H, $redis, $table_suffix;
+   GLOBAL $DB, $DB_H, $redis, $client_id, $global_condition;
    $data = array();
    $traffic_analysis = array();
    $a=0;
 
-   $tName1 = 'channel_'.$table_suffix;
+   $tName1 = 'channel_'.$client_id;
 
    $f1 = array ('traffic');
    $w1 = '';
-   $tName1 = $DB->SELECT ($tName1 , $f1, $_BLANK_ARRAY, $w1 , $DB_H);
+   $tName1 = $DB->SELECT ($tName1 , $f1, $_BLANK_ARRAY, $w1.$global_condition , $DB_H);
 
    if(! $tName1 ) {
       // die('Could not get data: ' . mysqli_error());
@@ -166,13 +169,13 @@ function channel_wise_traffic(){
 }
 
 function department_closing_percent(){
-   GLOBAL $DB, $DB_H, $redis, $table_suffix;
+   GLOBAL $DB, $DB_H, $redis, $client_id, $global_condition;
 
-   $tName4 = 'department_closing_percent_'.$table_suffix;
+   $tName4 = 'department_closing_percent_'.$client_id;
 
    $f4 = array ('dept_percent');
    $w4 = '';
-   $tName4 = $DB->SELECT ($tName4 , $f4, $_BLANK_ARRAY, $w4 , $DB_H);
+   $tName4 = $DB->SELECT ($tName4 , $f4, $_BLANK_ARRAY, $w4.$global_condition , $DB_H);
 
    if(! $tName4 ) {
       // die('Could not get data: ' . mysqli_error());
@@ -200,13 +203,13 @@ function department_closing_percent(){
 }
 
 function department_closing_percent_below_ninty(){
-   GLOBAL $DB, $DB_H, $redis, $table_suffix;
+   GLOBAL $DB, $DB_H, $redis, $client_id, $global_condition;
 
-   $tName5 = 'process_ticket_count_'.$table_suffix;
+   $tName5 = 'process_ticket_count_'.$client_id;
 
    $f5 = array ('dept_below_percent');
    $w5 = '';
-   $tName5 = $DB->SELECT ($tName5 , $f5, $_BLANK_ARRAY, $w5 , $DB_H);
+   $tName5 = $DB->SELECT ($tName5 , $f5, $_BLANK_ARRAY, $w5.$global_condition , $DB_H);
 
    if(! $tName5 ) {
       // die('Could not get data: ' . mysqli_error());

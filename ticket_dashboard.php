@@ -3,6 +3,8 @@
 	require_once ("/var/www/html/CZCRM/configs/config.php");
 	require_once ("/var/www/html/CZCRM/configs/dashboard_config.php");
     require_once("/var/www/html/CZCRM/dashboard_requirements.php");
+
+    $client_id = isset($_SESSION['CLIENT_ID'])?$_SESSION['CLIENT_ID']:'';
 ?>
 
 <html lang="en">
@@ -145,6 +147,7 @@
 <script>
 var default_range = '<?=_DEFAULT_RANGE?>';
 var default_graph = '<?=_DEFAULT_GRAPH?>';
+var client_id = '<?=$client_id?>';
 
 function getData(range='',graph=''){
     console.log('======graph range======',range);
@@ -153,7 +156,7 @@ function getData(range='',graph=''){
     $.ajax({
         type: "POST",
         url: "graph_data.php",
-        data: "range="+range+"&graph="+graph,
+        data: "range="+range+"&graph="+graph+'&client_id='+client_id,
         success: function(result){
             console.log("result is ======",result);
             
