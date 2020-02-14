@@ -151,6 +151,7 @@ var client_id = '<?=$client_id?>';
 
 function getData(range='',graph=''){
     console.log('======graph range======',range);
+    // alert('getdata1');
     var range = (range != '')?range:default_range;
     var graph = (graph != '')?graph:default_graph;
     $.ajax({
@@ -335,21 +336,19 @@ function getData(range='',graph=''){
                 if(department_ticket_status_graph != null){
                     console.log('Department wise ticket status');
                     var totalVal = department_ticket_status_graph.ttl;
-                    totalVal = (totalVal != null)?JSON.parse(totalVal):'';
-                    console.log('totalVal');
-                    console.log(totalVal);
+                    totalVal = (totalVal != null && totalVal != '')?JSON.parse(totalVal):'';
+                    // console.log('totalVal');
+                    // console.log(totalVal);
                     var jsonStr = department_ticket_status_graph.jsonStr;
-                    jsonStr = (jsonStr != null)?JSON.parse(jsonStr):'';
-                    console.log('jsonStr',typeof(jsonStr));
-                    console.log(jsonStr);
+                    jsonStr = (jsonStr != null && jsonStr != '')?JSON.parse(jsonStr):'';
+                    // console.log('jsonStr',typeof(jsonStr));
+                    // console.log(jsonStr);
                     var jsonDlStr = department_ticket_status_graph.jsonDlStr;
-                    jsonDlStr = (jsonDlStr != null)?JSON.parse(jsonDlStr):'';
-                    console.log('jsonDlStr');
-                    console.log(jsonDlStr);
+                    jsonDlStr = (jsonDlStr != null && jsonDlStr != '')?JSON.parse(jsonDlStr):'';
+                    // console.log('jsonDlStr');
+                    // console.log(jsonDlStr);
                     var jsonDtc = department_ticket_status_graph.dtc;
-                    jsonDtc = (jsonDtc != null)?JSON.parse(jsonDtc):'';
-                    console.log('jsonDtc');
-                    console.log(jsonDtc);
+                    jsonDtc = (jsonDtc != null && jsonDtc!='')?JSON.parse(jsonDtc):'';
 
                     Highcharts.chart("department_wise_ticket_status", {
                         chart: {
@@ -437,13 +436,13 @@ function getData(range='',graph=''){
 
                 if(department_closing_percent_graph != null){
                     var data_close_key = department_closing_percent_graph.data_close_key;
-                    data_close_key = (data_close_key != null)?JSON.parse(data_close_key):'';
-                    console.log('data_close_key');
-                    console.log(data_close_key);
+                    data_close_key = (data_close_key != null && data_close_key != '')?JSON.parse(data_close_key):'';
+                    // console.log('data_close_key');
+                    // console.log(data_close_key);
                     var data_close_val = department_closing_percent_graph.data_close_val;
-                    data_close_val = (data_close_val != null)?JSON.parse(data_close_val):'';
-                    console.log('data_close_val');
-                    console.log(data_close_val);
+                    data_close_val = (data_close_val != null && data_close_val != '')?JSON.parse(data_close_val):'';
+                    // console.log('data_close_val');
+                    // console.log(data_close_val);
 
                     //Department-wise Close Percentage graph
                     var chart = Highcharts.chart('department_closing_percent', {
@@ -495,7 +494,6 @@ function getData(range='',graph=''){
                         }
                     });
                 }
-               
 
                 //Department wise close percent below 90 graph
                 var department_closing_percent_below_ninty_string = (resultObj.department_closing_percent_below_ninty_string != null)?atob(resultObj.department_closing_percent_below_ninty_string):'';
@@ -508,9 +506,9 @@ function getData(range='',graph=''){
                 if(department_closing_percent_below_ninty_graph != null){
                  
                     var data_process_key = department_closing_percent_below_ninty_graph.data_process_key;
-                    data_process_key = (data_process_key != null)?JSON.parse(data_process_key):'';
+                    data_process_key = (data_process_key != null && data_process_key != '')?JSON.parse(data_process_key):'';
                     var data_process_val = department_closing_percent_below_ninty_graph.data_process_val;
-                    data_process_val = (data_process_val != null)?JSON.parse(data_process_val):'';
+                    data_process_val = (data_process_val != null && data_process_val != '')?JSON.parse(data_process_val):'';
 
                     //Department-Wise Close Percentage-Below 90% 
                     var chart = Highcharts.chart('process_ticket_count', {
@@ -577,7 +575,7 @@ function getData(range='',graph=''){
     //Inprogress/Open tickets graph
     // $(function () {
         // alert(range);
-    $.get('open_issues_data.php?id='+ '1'+'&range='+range, function(receivedMainData){
+    $.get('open_issues_data.php?id='+ '1'+'&range='+range+'&client_id='+client_id, function(receivedMainData){
         var maindata  = null;
         try {
             var maindata = JSON.parse(receivedMainData);
@@ -591,16 +589,24 @@ function getData(range='',graph=''){
                     type: 'column',
                     events: {
                         drilldown: function (e) {
+                            alert('open drill 1');
+                            console.log('open drill 1',e);
                             if (!e.seriesOptions) {
-                                var chart = this;
+                                let chart = this;
                                 chart.showLoading('<img src="images/loader2.gif" alt="Loading....">');
                                 setTimeout(function () {
-                                    console.log('hereeee');
-                                    $.get('open_issues_data.php?id='+ e.point.drilldown+'&range='+range, function(data){
-                                        console.log(data);
-                                        chart.hideLoading();
-                                        chart.addSeriesAsDrilldown(e.point, JSON.parse(data));
-                                    });
+                                    // console.log('hereeee');
+                                    // try {
+                                        $.get('open_issues_data.php?id='+ e.point.drilldown+'&range='+range+'&client_id='+client_id, function(data){
+                                            if(data != null && data != '' && e.point != null && e.point != ''){
+                                                console.log(data);
+                                                chart.hideLoading();
+                                                chart.addSeriesAsDrilldown(e.point, JSON.parse(data));
+                                            }
+                                        });
+                                    // } catch (e) {
+                                    //     console.log('Invalid json for open inprogress issue');
+                                    // }
                                 }, 100);
                             }
                         }
@@ -667,7 +673,7 @@ function getData(range='',graph=''){
         } 
     });
 
-    $.get('repeated_issue_api.php?id='+ '1'+'&range='+range, function(maindata){
+    $.get('repeated_issue_api.php?id='+ '1'+'&range='+range+'&client_id='+client_id, function(maindata){
         var repeated_issues_data  = null;
         try {
             var repeated_issues_data = JSON.parse(maindata);
@@ -681,23 +687,30 @@ function getData(range='',graph=''){
                 type: 'column',
                 events: {
                     drilldown: function (e) {
+                        alert('repeated drill 1');
+                        console.log('repeated drill 1',e);
                         if (!e.seriesOptions) {
-                                var chart = this;
+                                let chart = this;
                                 chart.showLoading('<img src="images/loader2.gif" alt="Loading....">');
-                                //alert( e.point.name);
                                 setTimeout(function () {
-                                    $.get('repeated_issue_api.php?id='+ e.point.drilldown+'&range='+range, function(data){
-                                    console.log(data);    
-                                    chart.hideLoading();
-                                    chart.addSeriesAsDrilldown(e.point, JSON.parse(data));
-                                    });
+                                    // try {
+                                        $.get('repeated_issue_api.php?id='+ e.point.drilldown+'&range='+range+'&client_id='+client_id, function(data){
+                                            if(data != null && data != '' && e.point != null && e.point != ''){
+                                                console.log('SHIVAM REPEAT',data);    
+                                                chart.hideLoading();
+                                                chart.addSeriesAsDrilldown(e.point, JSON.parse(data));
+                                            }
+                                        });
+                                    // } catch (e) {
+                                    //     console.log('Invalid json for open inprogress issue');
+                                    // }
                                 }, 100);
                             }
                         }
                     }       
                 },
                 title: {
-                    text: 'Repeated Issues-Past 24 Hours'
+                    text: 'Repeated Issues-'+range
                 },
                 subtitle: {
                     //text: 'Click the columns to view versions. Source: <a href="http://statcounter.com" target="_blank">statcounter.com</a>'
@@ -754,7 +767,6 @@ function getData(range='',graph=''){
             });
         }
     });
-
 }
 $(function() {
     // console.log('jjjj');
@@ -793,7 +805,7 @@ $(function() {
 });
 
 $(document).ready(function(){
-    getData();
+   getData();
 });
 </script>    
                  

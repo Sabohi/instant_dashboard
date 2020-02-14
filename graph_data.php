@@ -30,7 +30,7 @@ function ticket_status_count(){
 
    $tName2 = 'ticket_status_count_'.$client_id;
 
-   $f2 = array ('status');
+   $f2 = array ('json_data');
    $w2 = '';
    $tName2 = $DB->SELECT ($tName2 , $f2, $_BLANK_ARRAY, $w2.$global_condition , $DB_H);
 
@@ -39,31 +39,34 @@ function ticket_status_count(){
    }
    
    $totalArr=array();
-
+   $data_key  = array();
+   $b=0;
    $excludeArr=array("Total_Tickets","CLOSED","RESOLVED");
 
    while ($row = $DB->FETCH_ARRAY ($tName2, MYSQLI_ASSOC)) {
-      $row_json = json_decode($row['status'],true);
+      $row_json = json_decode($row['json_data'],true);
      
       foreach($row_json as $key=>$val){
          if(in_array($key,$excludeArr)){
             $totalArr[$key]=$val;
+         }else{
+            $data_key[$b]=$key;
+            $data_val[$b]=intval($val);
+            $b++;
          }
       }
-      $ticket_status_count =  $row['status'];
+      $ticket_status_count =  $row['json_data'];
    }
+  
+   // $ticket_status_count = json_decode($ticket_status_count,true);
 
-   $data_key  = array();
-   $b=0;
-   $ticket_status_count = json_decode($ticket_status_count,true);
-
-   $data_key  = array();
-   $b=0;
-   foreach($ticket_status_count as $key=>$val){
-      $data_key[$b]=$key;
-      $data_val[$b]=intval($val);
-      $b++; 
-   }
+   // $data_key  = array();
+   // $b=0;
+   // foreach($ticket_status_count as $key=>$val){
+   //    $data_key[$b]=$key;
+   //    $data_val[$b]=intval($val);
+   //    $b++; 
+   // }
    $data_key = json_encode($data_key);
    $data_val = json_encode($data_val);
    $totalArr = json_encode($totalArr);
@@ -78,24 +81,41 @@ function department_ticket_status_count(){
 
    // $tName = 'department_ticket_count_2015';
    $tName = 'department_ticket_count_'.$client_id;
-
-   $f = array ('key_name','json_data');
+   $json_data = '';
+   $row_data=array();
+   $ttl = $dtc = 0;
+   $jsonStr = $jsonDlStr = '';
+   $f = array ('json_data');
    $w = '';
    $tName = $DB->SELECT ($tName , $f, $_BLANK_ARRAY, $w.$global_condition , $DB_H);
    $row_count = $DB->GET_ROWS_COUNT($tName);
 
-   // if ($row_count > 0) {
-      $row_data=array();
-      while ($row = $DB->FETCH_ARRAY ($tName, MYSQLI_ASSOC)) {
-         $row_data[trim($row["key_name"])]=$row["json_data"];
-      }
+   if ($row_count > 0) {
+      $json_row = $DB->FETCH_ARRAY ($tName, MYSQLI_ASSOC);
+      $json_data = isset($json_row['json_data'])?$json_row['json_data']:'';
+   }
+
+
+   if(!empty($json_data)){
+      $row_data = json_decode($json_data, true);
+      // print_r($row_data);
+       // if ($row_count > 0) {
+      // $row_data=array();
+
+      // while ($row = $DB->FETCH_ARRAY ($tName, MYSQLI_ASSOC)) {
+      // foreach($json_data as $key=>$value){
+      //    $row_data[trim($key)]=$value;
+      // }
    
-      $tc=json_decode($row_data["ticket_status_count"],true);
-      $dtc=$row_data["dept_total_ticket_count"];  
+      // $tc=json_decode($row_data["ticket_status_count"],true);
+      $tc = isset($row_data["ticket_status_count"])?$row_data["ticket_status_count"]:'';
+      $dtc=isset($row_data["dept_total_ticket_count"])?json_encode($row_data["dept_total_ticket_count"]):'';  
       
-      $ttl=array_sum(json_decode($dtc,true));
+      // $ttl=array_sum(json_decode($dtc,true));
+      $ttl=array_sum($dtc);
    
-      $tcid=json_decode($row_data["department_wise_ticket_count"],true);
+      // $tcid=json_decode($row_data["department_wise_ticket_count"],true);
+      $tcid=isset($row_data["department_wise_ticket_count"])?$row_data["department_wise_ticket_count"]:'';
 
       $a=0;	
       $series=array();
@@ -115,16 +135,16 @@ function department_ticket_status_count(){
          $dlseries[$a]["name"]=$tk;
          $dlseries[$a]["id"]=$tk;
          foreach($tv as $tvk=>$tvv){
-                  $dlseries[$a]["data"][]=array($tvk,$tvv);
+            $dlseries[$a]["data"][]=array($tvk,$tvv);
          }
          $a++;
       }
-   // } else {
-   //    echo "No Data Found";
-   // }
-
-   $jsonStr=json_encode($series);
-   $jsonDlStr=json_encode($dlseries);
+      $jsonStr=json_encode($series);
+      $jsonDlStr=json_encode($dlseries);
+   }
+   // print '============================';
+  
+   // print 'dtc---'.$dtc;
 
    $dts_array = array("department_ticket_status_graph" => array("jsonStr"=>$jsonStr,"jsonDlStr"=>$jsonDlStr,"ttl"=>$ttl,"dtc"=>$dtc));
 
@@ -141,16 +161,16 @@ function channel_wise_traffic(){
 
    $tName1 = 'channel_'.$client_id;
 
-   $f1 = array ('traffic');
+   $f1 = array ('json_data');
    $w1 = '';
    $tName1 = $DB->SELECT ($tName1 , $f1, $_BLANK_ARRAY, $w1.$global_condition , $DB_H);
 
-   if(! $tName1 ) {
+   // if(! $tName1 ) {
       // die('Could not get data: ' . mysqli_error());
-   }
+   // }
    
    while ($row = $DB->FETCH_ARRAY ($tName1, MYSQLI_ASSOC)) {
-      $traffic_analysis =  $row['traffic'];
+      $traffic_analysis =  $row['json_data'];
    }
 
    $traffic_analysis = json_decode($traffic_analysis,true);
@@ -173,7 +193,7 @@ function department_closing_percent(){
 
    $tName4 = 'department_closing_percent_'.$client_id;
 
-   $f4 = array ('dept_percent');
+   $f4 = array ('json_data');
    $w4 = '';
    $tName4 = $DB->SELECT ($tName4 , $f4, $_BLANK_ARRAY, $w4.$global_condition , $DB_H);
 
@@ -182,10 +202,11 @@ function department_closing_percent(){
    }
 
    while ($row = $DB->FETCH_ARRAY ($tName4, MYSQLI_ASSOC)) {
-      $department_closing_percent =  $row['dept_percent'];
+      $department_closing_percent =  $row['json_data'];
    }
 
    $department_closing_percent = json_decode($department_closing_percent,true);
+
 
    $data_close_key  = array();
    $d=0;
@@ -196,8 +217,9 @@ function department_closing_percent(){
       $d++;
    }
    $data_close_key = json_encode($data_close_key);
+   $data_close_val = json_encode($data_close_val);
 
-   $dwcp_array = array("department_closing_percent_graph" => array("data_close_key"=>$data_close_key));
+   $dwcp_array = array("department_closing_percent_graph" => array("data_close_key"=>$data_close_key,"data_close_val"=>$data_close_val));
 
    return base64_encode(json_encode($dwcp_array));
 }
@@ -207,7 +229,7 @@ function department_closing_percent_below_ninty(){
 
    $tName5 = 'process_ticket_count_'.$client_id;
 
-   $f5 = array ('dept_below_percent');
+   $f5 = array ('json_data');
    $w5 = '';
    $tName5 = $DB->SELECT ($tName5 , $f5, $_BLANK_ARRAY, $w5.$global_condition , $DB_H);
 
@@ -216,7 +238,7 @@ function department_closing_percent_below_ninty(){
    }
 
    while ($row = $DB->FETCH_ARRAY ($tName5, MYSQLI_ASSOC)) {
-      $below_percent_count =  $row['dept_below_percent'];
+      $below_percent_count =  $row['json_data'];
    }
 
    $below_percent_count = json_decode($below_percent_count,true);
