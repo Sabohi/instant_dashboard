@@ -6,12 +6,11 @@
 
     $client_id = isset($_SESSION['CLIENT_ID'])?$_SESSION['CLIENT_ID']:'';
 ?>
-
 <html lang="en">
 <style>
     .ranges li:last-child { display: none; }
     .clock {
-    float:right; 
+        float:right; 
     }
     .highcharts-container
     {
@@ -31,23 +30,65 @@
     display:none;
     }
     .ticket-graphTable {
-        width: 200px;
+        /*width: 200px;*/
+        display: inline-block;
         height: auto;
-        position: absolute;
+        /*position: absolute;*/
         z-index: 999;
-        background-color: #fff;
-        right:3%;
+        /*background-color: #fff;*/
+        /*right:3%;*/
+        margin-left: 11px;
+        margin-top: 10px;
     }
-    .ticket-graphTable th, td
+    .ticket-graphTable li
     {
-        padding:3px!important;
+        padding:3px 12px;
+        display: inline-block;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        text-align: center;
     }
     </style>
 
 <div class="container-fluid">
-    <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 22%;float: right;margin-top:24px;margin-right:11px;">
-        <i class="fa fa-calendar"></i>&nbsp;
-        <span></span> <i class="fa fa-caret-down"></i>
+    <div style="position: sticky;top: 45px;z-index: 11;background: whitesmoke;padding-bottom: 5px;">
+        <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 270px;float: right;margin-top:24px;margin-right:11px;">
+            <i class="fa fa-calendar"></i>&nbsp;
+            <span></span> <i class="fa fa-caret-down"></i>
+        </div>
+        <div class="ticket-graphTable">
+            <ul style="list-style-type: none;padding-left: 0;margin-bottom: 0;">
+                <li>
+                    <p style="margin-bottom: 0;">Total Tickets</p>
+                    <p style="margin-bottom: 0;" id="total_tickets">0</p>
+                </li>
+                <li>
+                    <p style="margin-bottom: 0;">Closed Tickets</p>
+                    <p style="margin-bottom: 0;" id="closed_tickets">0</p>
+                </li>
+                <li>
+                    <p style="margin-bottom: 0;">Resolved Tickets</p>
+                    <p style="margin-bottom: 0;" id="resolved_tickets">0</p>
+                </li>
+            </ul>
+            <!-- <table class="table table-bordered" style="font-size:12px;margin-bottom:0;">
+                <thead>
+                    <tr>
+                        <th style="text-align:center;height: 30px;">Total Tickets</th>
+                        <th style="text-align:center;height: 30px;">Closed Tickets</th>
+                        <th style="text-align:center;height: 30px;">Resolved Tickets</th>
+                    </tr>
+                </thead>
+                <tbody style="text-align: center;">
+                    <tr>
+                        <td style="" id="total_tickets">0</td>
+                        <td style="" id="closed_tickets">0</td>
+                        <td style="" id="resolved_tickets">0</td>
+                    </tr>
+                </tbody>
+            </table> -->
+        </div>
+        <div class="clearfix"></div>
     </div>
         <div class="col-md-12" style="margin-top:11px;">
             <div class="row">
@@ -55,29 +96,6 @@
                 <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-body">
-                            <div class="ticket-graphTable">
-                                <table class="table table-bordered" style="font-size:12px;margin-bottom:0;">
-                                    <thead style="background:#ddd">
-                                        <tr>
-                                            <th colspan="2" style="text-align:center;">Ticket Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td style="color:#FFF;background-color:blue;border:1px solid blue;">Total</td>
-                                            <td style="color:#FFF;background-color:blue;border:1px solid blue;" id="total_tickets">0</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="color:#FFF;background-color:green;border:1px solid green;">Closed</td>
-                                            <td style="color:#FFF;background-color:green;border:1px solid green;" id="closed_tickets">0</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="color:#FFF;background-color:orange;border:1px solid orange;">Resolved</td>
-                                            <td style="color:#FFF;background-color:orange;border:1px solid orange;" id="resolved_tickets">0</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
                             <div id="ticket_status_count" style="min-width: 310px; height: 400px; margin: 0 auto">
                             </div>
                         </div>
@@ -93,18 +111,10 @@
                 <div class="col-md-12">
                     <div class="panel panel-default">
                             <div class="panel-body">
-                                <div id="open_inprogress_graph" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-                                <!-- <iframe src='<?//=_CALL_API_DNS."/open_ticket.php"?>' width=100% height=400 style="border:none;"></iframe> -->
+                                <div id="new_inprogress_graph" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
                         </div>
                     </div>
                 </div>
-                <!-- <div class="col-md-6">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <div id="ticket_status_count" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-                        </div>
-                    </div>
-                </div> -->
                 <div class="col-md-6">
                     <div class="panel panel-default">
                         <div class="panel-body">
@@ -126,19 +136,11 @@
                         </div>
                     </div>
                 </div>
-                <!-- <div class="col-md-6">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                                <iframe src='<?//=_CALL_API_DNS."/company_wise_ticket.php"?>' width=100% height=310 style="border:none;"></iframe>
-                        </div>
-                    </div>
-                </div> -->
                 <div class="col-md-6">	
                     <div class="panel panel-default">
-                            <div class="panel-body">
-                                <div id="repeated_issue" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-                                <!-- <iframe src='<?//=_CALL_API_DNS."/repeated_issue_details.php"?>' width=100% height=310 style="border:none;"></iframe> -->
-                            </div>
+                        <div class="panel-body">
+                            <div id="repeated_issue" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+                        </div>
                     </div>
                 </div> 
             </div>
@@ -151,9 +153,9 @@ var client_id = '<?=$client_id?>';
 
 function getData(range='',graph=''){
     console.log('======graph range======',range);
-    // alert('getdata1');
-    var range = (range != '')?range:default_range;
-    var graph = (graph != '')?graph:default_graph;
+   
+    range = (range != '')?range:default_range;
+    graph = (graph != '')?graph:default_graph;
     $.ajax({
         type: "POST",
         url: "graph_data.php",
@@ -162,7 +164,15 @@ function getData(range='',graph=''){
             console.log("result is ======",result);
             
             if(result != null){
-                var resultStr = atob(result);
+                var resultStr = '';
+                try {
+                    resultStr = atob(result);
+                }
+                catch(err) {
+                    console.log('Error in base64 decode');
+                    console.log(err.message);
+                }
+                
                 console.log("resultStr",resultStr);
                 console.log("typeof",typeof(resultStr));
 
@@ -177,7 +187,7 @@ function getData(range='',graph=''){
                 console.log(resultObj);
 
                 //ticket status graph
-                var ticket_status_string = (resultObj.ticket_status_string != null)?atob(resultObj.ticket_status_string):'';
+                var ticket_status_string = ((resultObj != null) && (resultObj.ticket_status_string != null))?atob(resultObj.ticket_status_string):'';
                 if(ticket_status_string != ''){
                     ticket_status_string = JSON.parse(ticket_status_string);
                 }
@@ -216,6 +226,7 @@ function getData(range='',graph=''){
                             },
                         },
                         yAxis: {
+                            allowDecimals: false,
                             title: {
                                 text: 'Total number of tickets'
                             }
@@ -224,6 +235,9 @@ function getData(range='',graph=''){
                             pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b> <br/>'
                         },
                         plotOptions: {
+                            series: {
+                                maxPointWidth: 50
+                            },
                             column: {
                                 dataLabels: {
                                     enabled: true,
@@ -239,7 +253,7 @@ function getData(range='',graph=''){
                             showInLegend: false
                         }],
                         lang: {
-                            noData: "No data to dispaly"
+                            noData: "No data to display"
                         },
                         noData: {
                             style: {
@@ -253,7 +267,7 @@ function getData(range='',graph=''){
 
                 console.log('Channel wise traffic graph');
                 //Channel wise traffic graph
-                var channel_wise_traffic_string = (resultObj.channel_wise_traffic_string != null)?atob(resultObj.channel_wise_traffic_string):'';
+                var channel_wise_traffic_string = ((resultObj != null) && (resultObj.channel_wise_traffic_string != null))?atob(resultObj.channel_wise_traffic_string):'';
                 if(channel_wise_traffic_string != ''){
                     channel_wise_traffic_string = JSON.parse(channel_wise_traffic_string);
                 }
@@ -311,7 +325,7 @@ function getData(range='',graph=''){
                             data: data
                         }],
                         lang: {
-                            noData: "No data to dispaly"
+                            noData: "No data to display"
                         },
                         noData: {
                             style: {
@@ -325,7 +339,7 @@ function getData(range='',graph=''){
 
                 console.log('===============4=============');
                 //Department wise ticket status graph
-                var department_ticket_status_string = (resultObj.department_ticket_status_string != null)?atob(resultObj.department_ticket_status_string):'';
+                var department_ticket_status_string = ((resultObj != null) && (resultObj.department_ticket_status_string != null))?atob(resultObj.department_ticket_status_string):'';
                 if(department_ticket_status_string != ''){
                     department_ticket_status_string = JSON.parse(department_ticket_status_string);
                 }
@@ -382,6 +396,7 @@ function getData(range='',graph=''){
                             },
                         },
                         yAxis: {
+                            allowDecimals: false,
                             title: {
                                 text: 'Total numbers of tickets'
                             }
@@ -392,6 +407,7 @@ function getData(range='',graph=''){
                         },
                         plotOptions: {
                             series: {
+                                maxPointWidth: 50,
                                 borderWidth: 0,
                                 dataLabels: {
                                     enabled: true,
@@ -413,7 +429,7 @@ function getData(range='',graph=''){
                             series: jsonDlStr
                         },
                         lang: {
-                            noData: "No data to dispaly"
+                            noData: "No data to display"
                         },
                         noData: {
                             style: {
@@ -427,7 +443,7 @@ function getData(range='',graph=''){
 
                 console.log('Department wise close percent graph');
                 //Department wise close percent graph
-                var department_closing_percent_string = (resultObj.department_closing_percent_string != null)?atob(resultObj.department_closing_percent_string):'';
+                var department_closing_percent_string = ((resultObj != null) && (resultObj.department_closing_percent_string != null))?atob(resultObj.department_closing_percent_string):'';
                 if(department_closing_percent_string != ''){
                     department_closing_percent_string = JSON.parse(department_closing_percent_string);
                 }
@@ -459,14 +475,18 @@ function getData(range='',graph=''){
                             },
                         },
                         yAxis: {
+                            // allowDecimals: false,
                             title: {
-                                text: 'Total number of tickets'
+                                text: 'Ticket Closing Percentage'
                             }
                         },
                         tooltip: {
                             pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:1f}%</b> <br/>'
                         },
                         plotOptions: {
+                            series: {
+                                maxPointWidth: 50
+                            },
                             column: {
                                 dataLabels: {
                                     enabled: true,
@@ -483,7 +503,7 @@ function getData(range='',graph=''){
                             showInLegend: false,
                         }],
                         lang: {
-                            noData: "No data to dispaly"
+                            noData: "No data to display"
                         },
                         noData: {
                             style: {
@@ -496,7 +516,7 @@ function getData(range='',graph=''){
                 }
 
                 //Department wise close percent below 90 graph
-                var department_closing_percent_below_ninty_string = (resultObj.department_closing_percent_below_ninty_string != null)?atob(resultObj.department_closing_percent_below_ninty_string):'';
+                var department_closing_percent_below_ninty_string = ((resultObj != null) && (resultObj.department_closing_percent_below_ninty_string != null))?atob(resultObj.department_closing_percent_below_ninty_string):'';
                 if(department_closing_percent_below_ninty_string != ''){
                     department_closing_percent_below_ninty_string = JSON.parse(department_closing_percent_below_ninty_string);
                 }
@@ -525,11 +545,15 @@ function getData(range='',graph=''){
                             },
                         },
                         yAxis: {
+                            // allowDecimals: false,
                             title: {
-                                text: 'Total number of tickets'
+                                text: 'Ticket Closing Percentage'
                             }
                         },
                         plotOptions: {
+                            series: {
+                                maxPointWidth: 50
+                            },
                             column: {
                                 dataLabels: {
                                     enabled: true,
@@ -551,7 +575,7 @@ function getData(range='',graph=''){
                             showInLegend: false
                         }],
                         lang: {
-                            noData: "No data to dispaly"
+                            noData: "No data to display"
                         },
                         noData: {
                             style: {
@@ -563,7 +587,6 @@ function getData(range='',graph=''){
                     });
                 }
 
-            
             }else{
                 console.log("Blank result");
             }
@@ -574,46 +597,52 @@ function getData(range='',graph=''){
     });
     //Inprogress/Open tickets graph
     // $(function () {
-        // alert(range);
     $.get('open_issues_data.php?id='+ '1'+'&range='+range+'&client_id='+client_id, function(receivedMainData){
         var maindata  = null;
         try {
-            var maindata = JSON.parse(receivedMainData);
+            maindata = JSON.parse(receivedMainData);
         } catch (e) {
             console.log('Invalid json for open issues');
         }
 
         if(maindata != null){
-            $("#open_inprogress_graph").highcharts({
+            const openInprogressChartConfig = {
                 chart: {
                     type: 'column',
                     events: {
+
                         drilldown: function (e) {
-                            alert('open drill 1');
-                            console.log('open drill 1',e);
-                            if (!e.seriesOptions) {
+                            if (!e.seriesOptions && e.target.renderTo.id === 'new_inprogress_graph') {
+                                console.log('open drill 1',e);
+                                console.log('range',range);
+
                                 let chart = this;
                                 chart.showLoading('<img src="images/loader2.gif" alt="Loading....">');
                                 setTimeout(function () {
-                                    // console.log('hereeee');
-                                    // try {
-                                        $.get('open_issues_data.php?id='+ e.point.drilldown+'&range='+range+'&client_id='+client_id, function(data){
-                                            if(data != null && data != '' && e.point != null && e.point != ''){
-                                                console.log(data);
-                                                chart.hideLoading();
-                                                chart.addSeriesAsDrilldown(e.point, JSON.parse(data));
+                                    console.log(window.range_to_pass,'window range  ',range);
+                                        $.get('open_issues_data.php?id='+ e.point.drilldown+'&range='+window.range_to_pass+'&client_id='+client_id, function(data){
+                                            chart.hideLoading();
+                                            console.log(data,'=====data');
+                                            let open_issues_drilldown_data = {};
+                                            if(data != null && data != '' && e.point != null && e.point != ''){   
+                                                try {
+                                                    open_issues_drilldown_data = JSON.parse(data);
+                                                    console.log('=====open_issues_drilldown_data');
+                                                    console.log(open_issues_drilldown_data);
+                                                } catch (e) {
+                                                    console.log('Invalid json for open issues drilldown issue');
+                                                }
                                             }
+                                            chart.addSeriesAsDrilldown(e.point, open_issues_drilldown_data);
                                         });
-                                    // } catch (e) {
-                                    //     console.log('Invalid json for open inprogress issue');
-                                    // }
                                 }, 100);
                             }
                         }
+                           
                     }
                 },
                 title: {
-                    text: 'Open/Inprogress Ticket Details-'+range
+                    text: '(NEW & OPEN-EMAIL)/INPROGRESS Ticket Details-'+range
                 },
                 xAxis: {
                     type: 'category',
@@ -622,21 +651,23 @@ function getData(range='',graph=''){
                     }
                 },
                 yAxis: {
+                    allowDecimals: false,
                     min: 0,
                     title: {
                         text: 'Total number of tickets'
                     }
                 },
                 tooltip: {
+                    // shared: true,
                     headerFormat: '<span style="font-size:10px">{point.key.name}</span><table>',
                     pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
                         '<td style="padding:0"><b>{point.y:.1f} </b></td></tr>',
                     footerFormat: '</table>',
-                    shared: true,
                     useHTML: true
                 },
                 plotOptions: {
-                        column: {
+                    column: {
+                        
                         dataLabels: {
                             enabled: true,
                             crop: false,
@@ -644,23 +675,25 @@ function getData(range='',graph=''){
                         }
                     },
                     series: {
+                    //  align: 'left',
+                        maxPointWidth: 50,
                         borderWidth: 0,
                         dataLabels: {
                             enabled: true,
+                            // align: 'left',
                             format: '{point.y}'
                         }
                     }
                 },
-                //series: maindata,
                 series: [{
-                    name: 'Open Tickets',
-                    data: maindata["open"] 
+                    name: 'NEW & OPEN-EMAIL Tickets',
+                    data: maindata["new"] 
                 }, {
-                    name: 'InProgress Tickets',
+                    name: 'INPROGRESS Tickets',
                     data : maindata["inprogress"]    
                 }],
                 lang: {
-                    noData: "No data to dispaly"
+                    noData: "No data to display"
                 },
                 noData: {
                     style: {
@@ -669,37 +702,52 @@ function getData(range='',graph=''){
                         color: '#0086b3'
                     }
                 }
-            });
+            };
+
+            if(window.openIssuesChartInitialized){  
+                openInprogressChartConfig.chart.events = Object.create({});           
+            }
+            else{
+                window.openIssuesChartInitialized = true;
+            }
+            Highcharts.chart('new_inprogress_graph',openInprogressChartConfig);
         } 
     });
 
     $.get('repeated_issue_api.php?id='+ '1'+'&range='+range+'&client_id='+client_id, function(maindata){
         var repeated_issues_data  = null;
         try {
-            var repeated_issues_data = JSON.parse(maindata);
+            repeated_issues_data = JSON.parse(maindata);
         } catch (e) {
            console.log('Invalid json for repeated issue');
         }
         
         if(repeated_issues_data != null){
-            Highcharts.chart('repeated_issue', {
-            chart: {
-                type: 'column',
-                events: {
+
+            const repeatedIssuesChartConfig = {
+                chart: {
+                    type: 'column',
+                    events: {
                     drilldown: function (e) {
-                        alert('repeated drill 1');
-                        console.log('repeated drill 1',e);
-                        if (!e.seriesOptions) {
+                        // alert('repeated drill 1');
+                        
+                        if (!e.seriesOptions && e.target.renderTo.id === 'repeated_issue') {
+                            console.log('repeated drill 1',e.target.renderTo.id);
                                 let chart = this;
                                 chart.showLoading('<img src="images/loader2.gif" alt="Loading....">');
                                 setTimeout(function () {
                                     // try {
-                                        $.get('repeated_issue_api.php?id='+ e.point.drilldown+'&range='+range+'&client_id='+client_id, function(data){
-                                            if(data != null && data != '' && e.point != null && e.point != ''){
-                                                console.log('SHIVAM REPEAT',data);    
-                                                chart.hideLoading();
-                                                chart.addSeriesAsDrilldown(e.point, JSON.parse(data));
+                                        $.get('repeated_issue_api.php?id='+ e.point.drilldown+'&range='+window.range_to_pass+'&client_id='+client_id, function(data){
+                                            chart.hideLoading();
+                                            let repeated_issues_drilldown_data = {};
+                                            if(data != null && data != '' && e.point != null && e.point != ''){   
+                                                try {
+                                                    repeated_issues_drilldown_data = JSON.parse(data);
+                                                } catch (e) {
+                                                    console.log('Invalid json for open issues drilldown issue');
+                                                }
                                             }
+                                            chart.addSeriesAsDrilldown(e.point, repeated_issues_drilldown_data); 
                                         });
                                     // } catch (e) {
                                     //     console.log('Invalid json for open inprogress issue');
@@ -719,6 +767,7 @@ function getData(range='',graph=''){
                             type: 'category'
                 },
                 yAxis: {
+                    allowDecimals: false,
                     title: {
                         text: 'Total number of Issues'
                     }
@@ -740,6 +789,7 @@ function getData(range='',graph=''){
                         }
                     },
                     series: {
+                        maxPointWidth: 50,
                         borderWidth: 0,
                         dataLabels: {
                             enabled: true,
@@ -755,7 +805,7 @@ function getData(range='',graph=''){
                     series: []
                 },
                 lang: {
-                    noData: "No data to dispaly"
+                    noData: "No data to display"
                 },
                 noData: {
                     style: {
@@ -764,17 +814,44 @@ function getData(range='',graph=''){
                         color: '#0086b3'
                     }
                 }
-            });
+            };
+
+            if(window.repeatedIssuesChartInitialized){  
+                repeatedIssuesChartConfig.chart.events = Object.create({});           
+            }
+            else{
+                window.repeatedIssuesChartInitialized = true;
+            }
+
+            Highcharts.chart('repeated_issue',repeatedIssuesChartConfig);
+          
         }
     });
 }
 $(function() {
-    // console.log('jjjj');
-    // console.log(moment().format('MMM DD'))
+    let session_storage_range = sessionStorage.getItem("range_to_pass");
 
-    // var start = moment().subtract(29, 'days');
     var start = moment();
     var end = moment();
+   
+    switch(session_storage_range) {
+        case 'Today':
+            start = moment();
+            end = moment();
+        break;
+        case 'Yesterday':
+            start = moment().subtract(1, 'days');
+            end = moment().subtract(1, 'days');
+        break;
+        case 'Last 7 Days':
+            start = moment().subtract(7, 'days');
+            end = moment().subtract(1, 'days');
+        break;
+        case 'Last 30 Days':
+            start = moment().subtract(30, 'days');
+            end = moment().subtract(1, 'days');
+        break;
+    }
 
     function cb(start, end) {
         $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -786,8 +863,8 @@ $(function() {
         ranges: {
            'Today': [moment(), moment()],
            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-           'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-           'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+           'Last 7 Days': [moment().subtract(7, 'days'), moment().subtract(1, 'days')],
+           'Last 30 Days': [moment().subtract(30, 'days'), moment().subtract(1, 'days')],
         //    'This Month': [moment().startOf('month'), moment().endOf('month')],
         //    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
         }
@@ -795,17 +872,54 @@ $(function() {
 
     cb(start, end);
 
+    // if(session_storage_range){
+
+    // }
     $('li').click(function(){
-        var range = $(this).attr('data-range-key');
-        console.log('case for dashboard',range);
-        if(range != null){
-            getData(range);
+        window.range_to_pass = $(this).attr('data-range-key');
+        console.log('case for dashboard',window.range_to_pass);
+        if(window.range_to_pass != null){
+            sessionStorage.setItem("range_to_pass", window.range_to_pass);
+            getData(window.range_to_pass);
         }
     });
 });
 
 $(document).ready(function(){
-   getData();
+    let session_storage_range = sessionStorage.getItem("range_to_pass");
+    if((session_storage_range != null) && (session_storage_range!='')){
+        window.range_to_pass = session_storage_range;
+        console.log('set in session '+session_storage_range);
+
+        // console.log('===see here===');
+  
+        // let elements = $(".ranges").find("li"); 
+
+        // for (let elem of elements) {
+        //     let elem_text = elem.innerText;
+        //     if(elem_text != null){
+        //         if(elem_text == window.range_to_pass){
+        //             console.log('selected range is ===='+elem_text);
+        //             console.log(elem);
+        //             elem.classList.add("active");
+        //             // elem.addClass("active");
+        //             // elem.className = "active";
+        //         }else{
+        //             elem.classList.remove("active");
+        //         }
+               
+        //     }
+        // }
+        
+
+    }else{
+        window.range_to_pass = 'Today';
+        console.log('range not set in session');
+    }
+   
+    window.openIssuesChartInitialized = false;
+    window.repeatedIssuesChartInitialized = false;
+   getData(window.range_to_pass,'all');
 });
 </script>    
                  

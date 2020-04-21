@@ -36,7 +36,7 @@ if($id == '1'){
 // print_r($full_json_data);
         $required_data = isset($full_json_data['repeat_ticket_type'])?$full_json_data['repeat_ticket_type']:'';
 
-        if(!empty($full_json_data)){
+       // if(!empty($full_json_data)){
                 // while ($row = $DB->FETCH_ARRAY ($tName, MYSQLI_ASSOC)) {
                 //         $jsonData=json_decode($row["json_data"],true);
                 // }
@@ -52,7 +52,7 @@ if($id == '1'){
                         $a++;
                 }
 	        print_r(json_encode($narr));
-        }
+       // }
 }
 else
 {
@@ -68,7 +68,7 @@ else
                         // $row_count = $DB->GET_ROWS_COUNT($tName);
                         $required_data = isset($full_json_data['repeat_ticket_type_with_disposition'])?$full_json_data['repeat_ticket_type_with_disposition']:'';
 
-                        if (!empty($required_data)) {
+                        // if (!empty($required_data)) {
                                 // $row = $result->fetch_assoc();
                                 // while ($row = $DB->FETCH_ARRAY ($tName, MYSQLI_ASSOC)) {
                                 //         $jsonData=json_decode($row["json_data"],true);
@@ -90,7 +90,7 @@ else
                                 }
                                 $nar=array("name"=>$asr[1],"data"=>$narr);
                                 print(json_encode($nar));
-                        }
+                        // }
                 break;
                 case "3":    $tName = $tableName;
 
@@ -100,7 +100,7 @@ else
                         // $row_count = $DB->GET_ROWS_COUNT($tName);
                         $required_data = isset($full_json_data['repeat_ticket_type_with_sub_disposition'])?$full_json_data['repeat_ticket_type_with_sub_disposition']:'';
 
-                        if (!empty($required_data)) {
+                        // if (!empty($required_data)) {
                                 // $row = $result->fetch_assoc();
                                 // while ($row = $DB->FETCH_ARRAY ($tName, MYSQLI_ASSOC)) {
                                 //         $jsonData=json_decode($row["json_data"],true);
@@ -124,7 +124,7 @@ else
                                 }
                                 $nar=array("name"=>$asr[2],"data"=>$narr);
                                 print(json_encode($nar));
-                        }
+                        // }
                 break;
         }
 }
