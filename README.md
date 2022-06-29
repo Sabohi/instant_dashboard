@@ -1,2 +1,2 @@
 # instant_dashboard
-A dashboard created in 5 days
+A dashboard created in 1 day
